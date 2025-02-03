@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 
-const ListingSchema = new mongoose.Schema({
+const listingSchema = new mongoose.Schema({
     name: String,
     description: String,
     price: Number,
@@ -8,4 +8,4 @@ const ListingSchema = new mongoose.Schema({
     available: Boolean
 });
 
-module.exports = mongoose.model('Listing', ListingSchema);
+module.exports = listingSchema;

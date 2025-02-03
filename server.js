@@ -10,49 +10,35 @@
 ********************************************************************************/
 
 const express = require('express');
-const app = express();
 const cors = require('cors');
-const dotenv = require('dotenv');
-const mongoose = require('mongoose');
-const Listing = require('./modules/listingSchema');
-const ListingsDB = require('./modules/listingsDB.js');
+require('dotenv').config();
 
-dotenv.config();
+const ListingsDB = require('./modules/listingsDB.js');
+const db = new ListingsDB();
+
+const app = express();
 app.use(cors());
 app.use(express.json());
 
 const HTTP_PORT = process.env.PORT || 3000;
 
-const db = new ListingsDB();
-
 app.get('/', (req, res) => {
-    res.json({ message: "Welcome to Listings API" });
-});
-
-db.initialize(process.env.MONGODB_CONN_STRING).then(() => {
-    app.listen(HTTP_PORT, () => {
-        console.log(`Server listening on: ${HTTP_PORT}`);
-    });
-}).catch((err) => {
-    console.log(err);
+    res.json({ message: "API Listening" });
 });
 
 app.post('/api/listings', async (req, res) => {
     try {
-        const listing = await db.addListing(req.body);
-        res.status(201).json(listing);
+        const newListing = await db.addNewListing(req.body);
+        res.status(201).json(newListing);
     } catch (err) {
         res.status(500).json({ error: err.message });
     }
 });
 
 app.get('/api/listings', async (req, res) => {
-    let { page = 1, perPage = 5, name } = req.query;
-    page = parseInt(page);
-    perPage = parseInt(perPage);
-
+    const { page, perPage, name } = req.query;
     try {
-        const listings = await db.getListings(page, perPage, name);
+        const listings = await db.getAllListings(page, perPage, name);
         res.json(listings);
     } catch (err) {
         res.status(500).json({ error: err.message });
@@ -62,18 +48,24 @@ app.get('/api/listings', async (req, res) => {
 app.get('/api/listings/:id', async (req, res) => {
     try {
         const listing = await db.getListingById(req.params.id);
-        if (!listing) return res.status(404).json({ error: "Listing not found" });
-        res.json(listing);
+        if (listing) {
+            res.json(listing);
+        } else {
+            res.status(404).send({ error: 'Listing not found' });
+        }
     } catch (err) {
-        res.status(500).json({ error: err.message });
+        res.status(500).send({ error: err.message });
     }
 });
 
 app.put('/api/listings/:id', async (req, res) => {
     try {
-        const updatedListing = await db.updateListing(req.params.id, req.body);
-        if (!updatedListing) return res.status(404).json({ error: "Listing not found" });
-        res.json(updatedListing);
+        const updatedListing = await db.updateListingById(req.body, req.params.id);
+        if (updatedListing.modifiedCount === 0) {
+            res.status(404).json({ error: 'Listing not found or not updated' });
+        } else {
+            res.json({ message: 'Listing updated successfully' });
+        }
     } catch (err) {
         res.status(500).json({ error: err.message });
     }
@@ -81,11 +73,21 @@ app.put('/api/listings/:id', async (req, res) => {
 
 app.delete('/api/listings/:id', async (req, res) => {
     try {
-        await db.deleteListing(req.params.id);
-        res.status(204).end();
+        const result = await db.deleteListingById(req.params.id);
+        if (result.deletedCount === 0) {
+            res.status(404).json({ error: 'Listing not found' });
+        } else {
+            res.status(204).send();
+        }
     } catch (err) {
         res.status(500).json({ error: err.message });
     }
 });
 
-module.exports = app;
+db.initialize(process.env.MONGODB_CONN_STRING).then(() => {
+    app.listen(HTTP_PORT, () => {
+        console.log(`Server listening on: ${HTTP_PORT}`);
+    });
+}).catch((err) => {
+    console.log('Database initialization failed:', err);
+});
