@@ -6,7 +6,7 @@
 * https://www.senecapolytechnic.ca/about/policies/academic-integrity-policy.html
 *
 * Name: Abhishek Vijay Bagul Student ID: 148451214 Date: 02/03/25
-* Published URL: ___________________________________________________________
+* Published URL: https://listings-api-sand.vercel.app/
 ********************************************************************************/
 
 const express = require('express');
@@ -16,13 +16,14 @@ const dotenv = require('dotenv');
 const mongoose = require('mongoose');
 const Listing = require('./modules/listingSchema');
 const ListingsDB = require('./modules/listingsDB.js');
-const db = new ListingsDB();
 
 dotenv.config();
 app.use(cors());
 app.use(express.json());
 
 const HTTP_PORT = process.env.PORT || 3000;
+
+const db = new ListingsDB();
 
 app.get('/', (req, res) => {
     res.json({ message: "Welcome to Listings API" });
