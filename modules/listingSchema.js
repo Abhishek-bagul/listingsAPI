@@ -14,12 +14,12 @@ const hostSchema = new mongoose.Schema({
   host_url: String,
   host_name: String,
   host_location: String,
-  host_about: String,
+  host_about: { type: String, required: false },
   host_response_time: String,
   host_thumbnail_url: String,
   host_picture_url: String,
   host_neighbourhood: String,
-  host_response_rate: Number,
+  host_response_rate: { type: Number, required: false },
   host_is_superhost: Boolean,
   host_has_profile_pic: Boolean,
   host_identity_verified: Boolean,
@@ -29,8 +29,8 @@ const hostSchema = new mongoose.Schema({
 });
 
 const locationSchema = new mongoose.Schema({
-  type: String,
-  coordinates: [Number],
+  type: { type: String, default: 'Point' },
+  coordinates: [Number],  
   is_location_exact: Boolean,
 });
 
@@ -96,12 +96,12 @@ const listingSchema = new mongoose.Schema({
   cleaning_fee: Number,
   extra_people: Number,
   guests_included: Number,
-  images: imageSchema,
+  images: [imageSchema],  
   host: hostSchema,
   address: addressSchema,
   availability: availabilitySchema,
   review_scores: reviewScoresSchema,
   reviews: [reviewSchema],
-},{ collection: 'listingsAndReviews' }); 
+}, { collection: 'listingsAndReviews' }); 
 
-module.exports = listingSchema;
+module.exports = mongoose.model('Listing', listingSchema);
