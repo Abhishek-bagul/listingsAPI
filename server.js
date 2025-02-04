@@ -9,9 +9,9 @@
 * Published URL: https://listings-api-sand.vercel.app/
 ********************************************************************************/
 
+require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
-require('dotenv').config();
 
 const ListingsDB = require('./modules/listingsDB.js');
 const db = new ListingsDB();
@@ -85,6 +85,7 @@ app.delete('/api/listings/:id', async (req, res) => {
 });
 
 db.initialize(process.env.MONGODB_CONN_STRING).then(() => {
+    console.log("Database connected");
     app.listen(HTTP_PORT, () => {
         console.log(`Server listening on: ${HTTP_PORT}`);
     });
@@ -93,3 +94,5 @@ db.initialize(process.env.MONGODB_CONN_STRING).then(() => {
 });
 
 module.exports = app;
+
+
