@@ -91,3 +91,5 @@ db.initialize(process.env.MONGODB_CONN_STRING).then(() => {
 }).catch((err) => {
     console.log('Database initialization failed:', err);
 });
+
+module.exports = app;
