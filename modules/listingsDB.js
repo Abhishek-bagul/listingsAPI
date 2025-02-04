@@ -1,5 +1,5 @@
-const mongoose = require('mongoose');
-const listingSchema = require('./listingSchema');
+const mongoose = require("mongoose");
+const listingSchema = require("./listingSchema");
 
 module.exports = class ListingsDB {
   constructor() {
@@ -36,15 +36,30 @@ module.exports = class ListingsDB {
     return Promise.reject(new Error('page and perPage query parameters must be valid numbers'));
   }
 
-  getListingById(id) {
-    return this.Listing.findOne({ _id: id }).exec();
+  async getListingById(id) {
+    try {
+      const objectId = mongoose.isValidObjectId(id) ? new mongoose.Types.ObjectId(id) : id;
+      return await this.Listing.findOne({ _id: objectId }).exec();
+    } catch (err) {
+      throw new Error(`Invalid ID format: ${err.message}`);
+    }
   }
 
-  updateListingById(data, id) {
-    return this.Listing.updateOne({ _id: id }, { $set: data }).exec();
+  async updateListingById(data, id) {
+    try {
+      const objectId = mongoose.isValidObjectId(id) ? new mongoose.Types.ObjectId(id) : id;
+      return await this.Listing.updateOne({ _id: objectId }, { $set: data }).exec();
+    } catch (err) {
+      throw new Error(`Invalid ID format: ${err.message}`);
+    }
   }
 
-  deleteListingById(id) {
-    return this.Listing.deleteOne({ _id: id }).exec();
+  async deleteListingById(id) {
+    try {
+      const objectId = mongoose.isValidObjectId(id) ? new mongoose.Types.ObjectId(id) : id;
+      return await this.Listing.deleteOne({ _id: objectId }).exec();
+    } catch (err) {
+      throw new Error(`Invalid ID format: ${err.message}`);
+    }
   }
-}
+};
