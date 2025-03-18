@@ -38,7 +38,12 @@ module.exports = class ListingsDB {
 
   async getListingById(id) {
     try {
-      const objectId = mongoose.isValidObjectId(id) ? new mongoose.Types.ObjectId(id) : id;
+      // Check if ID is valid and convert to ObjectId if necessary
+      if (!mongoose.isValidObjectId(id)) {
+        throw new Error('Invalid ID format');
+      }
+  
+      const objectId = new mongoose.Types.ObjectId(id); // Always convert to ObjectId
       return await this.Listing.findOne({ _id: objectId }).exec();
     } catch (err) {
       throw new Error(`Invalid ID format: ${err.message}`);
