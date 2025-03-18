@@ -3,9 +3,11 @@ const listingSchema = require("./listingSchema");
 
 module.exports = class ListingsDB {
   constructor() {
+    // We don't have a `Listing` object until initialize() is complete
     this.Listing = null;
   }
 
+  // Pass the connection string to `initialize()`
   initialize(connectionString) {
     return new Promise((resolve, reject) => {
       const db = mongoose.createConnection(connectionString);
@@ -36,35 +38,15 @@ module.exports = class ListingsDB {
     return Promise.reject(new Error('page and perPage query parameters must be valid numbers'));
   }
 
-  async getListingById(id) {
-    try {
-      // Check if ID is valid and convert to ObjectId if necessary
-      if (!mongoose.isValidObjectId(id)) {
-        throw new Error('Invalid ID format');
-      }
-  
-      const objectId = new mongoose.Types.ObjectId(id); // Always convert to ObjectId
-      return await this.Listing.findOne({ _id: objectId }).exec();
-    } catch (err) {
-      throw new Error(`Invalid ID format: ${err.message}`);
-    }
+  getListingById(id) {
+    return this.Listing.findOne({ _id: id }).exec();
   }
 
-  async updateListingById(data, id) {
-    try {
-      const objectId = mongoose.isValidObjectId(id) ? new mongoose.Types.ObjectId(id) : id;
-      return await this.Listing.updateOne({ _id: objectId }, { $set: data }).exec();
-    } catch (err) {
-      throw new Error(`Invalid ID format: ${err.message}`);
-    }
+  updateListingById(data, id) {
+    return this.Listing.updateOne({ _id: id }, { $set: data }).exec();
   }
 
-  async deleteListingById(id) {
-    try {
-      const objectId = mongoose.isValidObjectId(id) ? new mongoose.Types.ObjectId(id) : id;
-      return await this.Listing.deleteOne({ _id: objectId }).exec();
-    } catch (err) {
-      throw new Error(`Invalid ID format: ${err.message}`);
-    }
+  deleteListingById(id) {
+    return this.Listing.deleteOne({ _id: id }).exec();
   }
-};
+}
